@@ -6,6 +6,7 @@ import machine
 from umqtt.simple import MQTTClient
 import wol
 import lgtv
+import IRaeha
 
 ir_tx = IRaeha.Transmitter(pin=25)
 
@@ -15,7 +16,7 @@ def sub_cb(topic, msg):
     if action['type'] == 'wol':
         for i in range(5):
             # change to your tv's mac address
-            wol.send(b'\xAA\xBB\xCC\xDD\xEE\xFF')
+            wol.send(b'\xC8\x08\xE9\xAB\x40\x91')
             time.sleep(1)
     elif action['type'] == 'off':
         lgtv.command("ssap://system/turnOff")
@@ -24,14 +25,15 @@ def sub_cb(topic, msg):
     elif action['type'] == 'volume-down':
         lgtv.command("ssap://audio/volumeDown")
     elif action['type'] == 'ceiling-sw':
-        for i in range(5):
-            aeha_tx.send([0x34, 0x4A, 0x90, 0x0C, 0x9C])
+        for i in range(4):
+            ir_tx.send([0x34, 0x4A, 0x90, 0x0C, 0x9C])
+            time.sleep(1)
 
 def main():
-    c = MQTTClient("your_aio_name", "io.adafruit.com", user="your_aio_name", password="your_aio_active_key", ssl=True)
+    c = MQTTClient("ainehanta", "io.adafruit.com", user="ainehanta", password="", ssl=True)
     c.set_callback(sub_cb)
     c.connect()
-    c.subscribe(b"your_aio_name/feeds/lgtv-action")
+    c.subscribe(b"ainehanta/feeds/lgtv-action")
 
     def check_msg():
         try:
@@ -45,7 +47,7 @@ def main():
     while True:
         epoch = time.time()
         if epoch != prev_epoch:
-            if epoch % 5 == 0:
+            if epoch % 1 == 0:
                 check_msg()
         prev_epoch = epoch
 
